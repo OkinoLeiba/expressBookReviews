@@ -13,7 +13,8 @@ let users = [{"username": username, "password": password}];
 
 const isValid = (username)=>{ //returns boolean
 //write code to check is the username is valid
-    return Boolean(Object.values(users).find(u => u.username === username));
+    // return Boolean(Object.values(users).find(u => u.username === username));
+    return users.filter( u => u.username === username).length > 0;
 }
 
 const authenticatedUser = async (username,password) => { //returns boolean
