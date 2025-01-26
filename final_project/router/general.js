@@ -5,6 +5,21 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+//only registered users can login
+public_users.post("/login", (req, res) => {
+    //Write your code here
+    // const { username, password } = req.body;
+    const username = req.query.body;
+    const password = req.query.body;
+    const user = users.find(u => u.username === username && u.password === password);
+    if (user) {
+        const token = jwt.sign({ username: user.username }, jwtSecret, { expiresIn: '1h' });
+        res.status(200).json({ token });
+    } else {
+        res.status(401).json({ message: username });
+    }
+});
+
 
 public_users.post("/register", (req,res) => {
   //Write your code here
@@ -28,12 +43,12 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  //Write your code here
+// public_users.get('/',function (req, res) {
+//   //Write your code here
   
-    res.send(JSON.stringify(books,null,4))
-  return res.status(300).json({message: "All books printed!"});
-});
+//     res.send(JSON.stringify(books,null,4))
+//   return res.status(300).json({message: "All books printed!"});
+// });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
@@ -72,9 +87,9 @@ public_users.get('/title/:title',function (req, res) {
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
   //Write your code here
-  const isbn = req.params.isbn;
+  const isbn = req.params.author;
     
-  let filtered_book = Object.values(books).filter(a => a.title === isbn);
+  let filtered_book = Object.values(books).filter(a => a.author === isbn);
   
   res.send(filtered_book);
   return res.status(300).json({message: "Book by ISBN!"});

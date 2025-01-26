@@ -4,12 +4,12 @@ let books = require("./booksdb.js");
 const regd_users = express.Router();
 
 
-let username = "asif";
-let password =  "12345";
+let username = "test123";
+let password =  "pass123";
 
 const jwtSecret = "244d0b97c61cb978567e348a15fc8cd5c3c5791af982ccae88db48383bc3c273";
 
-let users = [{"username": username, "password": password}];
+let users = [{"username": "test123", "password": "pass123"}];
 
 const isValid = (username)=>{ //returns boolean
 //write code to check is the username is valid
@@ -44,40 +44,42 @@ const authenticatedUser = async (username,password) => { //returns boolean
 }
 
 //only registered users can login
-regd_users.post("/login", (req,res) => {
-  //Write your code here
-  const username = req.body.username;
-  const password = req.body.password;
+// regd_users.post("/login", (req,res) => {
+//   //Write your code here
+//   const username = req.body.username;
+//   const password = req.body.password;
 
-//   const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
-// authenticatedUser(username, password);
-  if(username && password) {
-    // isValid(username);
-    if (!Object.values(users).includes(username)) {
+// //   const { username, password } = req.body;
+//     const user = users.find(u => u.username === username && u.password === password);
+// // authenticatedUser(username, password);
+//   if(username && password) {
+//     // isValid(username);
+//     if (!Object.values(users).includes(username)) {
 
-        users.push({"username": username, "password": password});
-        return res.status(200).json({message: "User successfully registered. Now you can login"});
-    } else {
-        return res.status(404).json({message: "User already exists!"});
-    }
-  }
+//         users.push({"username": username, "password": password});
+//         return res.status(200).json({message: "User successfully registered. Now you can login"});
+//     } else {
+//         return res.status(404).json({message: "User already exists!"});
+//     }
+//   }
   
-  return res.status(404).json({message: "Unable to register user."});
-});
+//   return res.status(404).json({message: "Unable to register user."});
+// });
 
 //only registered users can login
-regd_users.post("/login", (req, res) => {
-    //Write your code here
-    const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user) {
-        const token = jwt.sign({ username: user.username }, jwtSecret, { expiresIn: '1h' });
-        res.status(200).json({ token });
-    } else {
-        res.status(401).json({ message: "Invalid username or password" });
-    }
-});
+// regd_users.post("/login", (req, res) => {
+//     //Write your code here
+//     // const { username, password } = req.body;
+//     const username = req.query.body;
+//     const password = req.query.body;
+//     const user = users.find(u => u.username === username && u.password === password);
+//     if (user) {
+//         const token = jwt.sign({ username: user.username }, jwtSecret, { expiresIn: '1h' });
+//         res.status(200).json({ token });
+//     } else {
+//         res.status(401).json({ message: "Invalid username or password" });
+//     }
+// });
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
