@@ -21,18 +21,19 @@ const authenticatedUser = async (username,password) => { //returns boolean
 //write code to check if username and password match the one we have in records.
     //add async with promise
      let myPromise = new Promise(resolve => {
-        if (Object.values(users).find(u => u.username === username) && Object.values(users).find(p => p.password === password)) {        if(req.session.authorization) {
-            let token = req.session.authenticated["accessToken"];
+        if (Object.values(users).find(u => u.username === username) && Object.values(users).find(p => p.password === password)) {        
+            if(req.session.authorization) {
+                let token = req.session.authenticated["accessToken"];
 
-            jwt.verify(token, "access", (err, user) => {
-                if(!err) {
-                    req.user = user;
-                    next()
-                }
-                else {
-                    return true;
-                    // return res.status(403).json({ message: "User not authenticated" });
-                }
+                jwt.verify(token, "access", (err, user) => {
+                    if(!err) {
+                        req.user = user;
+                        next()
+                    }
+                    else {
+                        return true;
+                        // return res.status(403).json({ message: "User not authenticated" });
+                    }
             })
         }
         else {

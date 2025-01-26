@@ -9,7 +9,16 @@ const app = express();
 
 app.use(express.json());
 
-app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
+// Middleware to set up session management
+app.use("/customer", session({
+    secret: jwtSecret,      
+    resave: false,             // Whether to save the session data if there were no modifications
+    saveUninitialized: true,   // Whether to save new but not modified sessions
+    cookie: { secure: false },
+    
+  }));
+
+// app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
 app.use("/customer/auth/*", function auth(req,res,next){
 //Write the authenication mechanism here
