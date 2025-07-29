@@ -17,33 +17,36 @@ const isValid = (username)=>{ //returns boolean
     return users.filter( u => u.username === username).length > 0;
 }
 
-const authenticatedUser = async (username,password) => { //returns boolean
-//write code to check if username and password match the one we have in records.
-    //add async with promise
-     let myPromise = new Promise(resolve => {
-        if (Object.values(users).find(u => u.username === username) && Object.values(users).find(p => p.password === password)) {        
-            if(req.session.authorization) {
-                let token = req.session.authenticated["accessToken"];
+// const authenticatedUser = async (username,password) => { //returns boolean
+// //write code to check if username and password match the one we have in records.
+//     //add async with promise
+//      let myPromise = new Promise(resolve => {
+//         if (Object.values(users).find(u => u.username === username) && Object.values(users).find(p => p.password === password)) {        
+//             if(req.session.authorization) {
+//                 let token = req.session.authenticated["accessToken"];
 
-                jwt.verify(token, "access", (err, user) => {
-                    if(!err) {
-                        req.user = user;
-                        next()
-                    }
-                    else {
-                        return true;
-                        // return res.status(403).json({ message: "User not authenticated" });
-                    }
-            })
-        }
-        else {
-            return false;
-            // return res.status(403).json({ message: "User not logged in." });
+//                 jwt.verify(token, "access", (err, user) => {
+//                     if(!err) {
+//                         req.user = user;
+//                         next()
+//                     }
+//                     else {
+//                         return true;
+//                         // return res.status(403).json({ message: "User not authenticated" });
+//                     }
+//             })
+//         }
+//         else {
+//             return false;
+//             // return res.status(403).json({ message: "User not logged in." });
             
-        }
-    }});
+//         }
+//     }});
+// }
+const authenticatedUser = (username, password) => { 
+    return users.filter(u => u.username === username && u.password === password).length > 0;
+    
 }
-
 //only registered users can login
 // regd_users.post("/login", (req,res) => {
 //   //Write your code here
@@ -82,12 +85,41 @@ const authenticatedUser = async (username,password) => { //returns boolean
 //     }
 // });
 
+regd_users.post("/login", (req, res) => {
+    //Write your code here
+    const username = req.query.username;
+    const password = req.query.password;
+
+    if (!username || !password) {
+        return res.status(404).json({ message: "Error logging in" });
+    }
+
+    if (authenticatedUser(username, password)) {
+        let token = jwt.sign({
+            data: password
+        }, 'access', { expiresIn: '1h' });
+        console.log(req);
+        req.session.authorization = {
+            token, username, password
+        };
+        console.log(req.sessions);
+        return res.status(200).send("User successfully logged in");
+    } else {
+        return res.status(208).json({ message: "Invalid Login. Check username and password" });
+    }
+});
+
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  const author = req.params.author;
+  const author = req.params.isbn;
   const decoded = jwt.verify(token, jwtSecret);
   const username = decoded.username;
+
+  console.log(req);
+  console.log(author);
+  console.log(decoded);
+  console.log(username)
 
   if (books[isbn]) {
       if (!books[isbn].reviews) {
@@ -126,3 +158,4 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
+module.exports.jwtSecret = jwtSecret;

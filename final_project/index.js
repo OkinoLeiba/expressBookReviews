@@ -14,7 +14,7 @@ app.use("/customer", session({
     secret: jwtSecret,      
     resave: false,             // Whether to save the session data if there were no modifications
     saveUninitialized: true,   // Whether to save new but not modified sessions
-    cookie: { secure: false },
+    cookie: { secure: true },
     
   }));
 
@@ -22,9 +22,10 @@ app.use("/customer", session({
 
 app.use("/customer/auth/*", function auth(req,res,next){
 //Write the authenication mechanism here
+    console.log(req);
     if(req.session.authorization) {
-        let token = req.session.authenticated["accessToken"] ?? res.status(401).json({ message: "No token provided" });
-
+        let token = req.session.authorization["token"] ?? res.status(401).json({ message: "No token provided" });
+        console.log(token);
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {

@@ -1,32 +1,43 @@
 const express = require('express');
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
+let jwtSecret = require("./auth_users.js");
 const public_users = express.Router();
 
 //only registered users can login
-public_users.post("/login", (req, res) => {
-    //Write your code here
-    // const { username, password } = req.body;
-    const username = req.query.body;
-    const password = req.query.body;
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user) {
-        const token = jwt.sign({ username: user.username }, jwtSecret, { expiresIn: '1h' });
-        res.status(200).json({ token });
-    } else {
-        res.status(401).json({ message: username });
-    }
-});
+// public_users.post("/login", (req, res) => {
+//     //Write your code here
+//     // const { username, password } = req.body;
+//     const username = req.query.username;
+//     const password = req.query.password;
+
+//     const user = users.find(u => u.username === username && u.password === password);
+
+//     if (user) {
+//         const token = jwt.sign({ username: user.username }, jwtSecret.toString(), { expiresIn: '1h' });
+//         req.session.authorization = {
+//             token, username, password
+//         } 
+        
+//         console.log(req.session);
+//         console.log(req.headers.authorization);
+//         res.status(200).json({message: token + " token logged in successfully" });
+//     } else {
+//         res.status(401).json({ message: username });
+//     }
+// });
 
 
 public_users.post("/register", (req,res) => {
   //Write your code here
 //   const username = req.params.username;
 //   const password = req.params.password;
-  const username = req.query.username;
-  const password = req.query.password;
+    const username = req.query.username;
+    const password = req.query.password;
+  
   
   if(username && password) {
     if (users.map(u => u.username === username)) {
@@ -43,20 +54,21 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-// public_users.get('/',function (req, res) {
-//   //Write your code here
+public_users.get('/',function (req, res) {
+  //Write your code here
   
-//     res.send(JSON.stringify(books,null,4))
-//   return res.status(300).json({message: "All books printed!"});
-// });
+    res.send(JSON.stringify(books,null,4))
+  return res.status(300).json({message: "All books printed!"});
+});
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
-  const author = req.params.author;
-    
-  let filtered_book = Object.values(books).filter(a => a.author === author);
+  const author = req.params.isbn;
   
+    console.log(author)
+  let filtered_book = Object.values(books).filter(a => a.author === author);
+  console.log(filtered_book)
   res.send(filtered_book);
   return res.status(300).json({message: "Book by ISBN!"});
  });
@@ -97,21 +109,22 @@ public_users.get('/review/:isbn',function (req, res) {
 
 
 // Get the book list available in the shop
-public_users.get('/', async function (req, res) {
-    try {
-        const response = await axios.get('URL_TO_GET_BOOKS');
-        const books = response.data;
-        res.status(200).json(books);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching books", error: error.message });
-    }
-});
+// public_users.get('/', async function (req, res) {
+//     try {
+        
+//         const response = await axios.get('./router/booksdb.js');
+//         const books = response.data;
+//         res.status(200).json(books);
+//     } catch (error) {
+//         res.status(500).json({ message: "Error fetching books", error: error.message });
+//     }
+// });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn', async function (req, res) {
     const isbn = req.params.isbn;
     try {
-        const response = await axios.get(`URL_TO_GET_BOOK_BY_ISBN/${isbn}`); // Replace with the actual URL or API endpoint
+        const response = await axios.get(`isbn/${isbn}`); // Replace with the actual URL or API endpoint
         const book = response.data;
         res.status(200).json(book);
     } catch (error) {
@@ -123,7 +136,7 @@ public_users.get('/isbn/:isbn', async function (req, res) {
 public_users.get('/author/:author', async function (req, res) {
     const author = req.params.author;
     try {
-        const response = await axios.get(`URL_TO_GET_BOOKS_BY_AUTHOR/${author}`);
+        const response = await axios.get(`author/${author}`);
         const booksByAuthor = response.data;
         res.status(200).json(booksByAuthor);
     } catch (error) {
@@ -135,7 +148,7 @@ public_users.get('/author/:author', async function (req, res) {
 public_users.get('/title/:title', async function (req, res) {
     const title = req.params.title;
     try {
-        const response = await axios.get(`URL_TO_GET_BOOKS_BY_TITLE/${title}`);
+        const response = await axios.get(`title/${title}`);
         const booksByTitle = response.data;
         res.status(200).json(booksByTitle);
     } catch (error) {
@@ -146,7 +159,7 @@ public_users.get('/title/:title', async function (req, res) {
 //  Get book review
 public_users.get('/review/:isbn', function (req, res) {
     //Write your code here
-    const isbn = req.params.isbn;
+    const isbn = req.params.author;
     const book = books[isbn];
     if (book) {
         res.status(200).send(book.reviews);
