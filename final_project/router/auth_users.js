@@ -23,7 +23,7 @@ const isValid = (username)=>{ //returns boolean
 //      let myPromise = new Promise(resolve => {
 //         if (Object.values(users).find(u => u.username === username) && Object.values(users).find(p => p.password === password)) {        
 //             if(req.session.authorization) {
-//                 let token = req.session.authenticated["accessToken"];
+//                 let token = req.session.authorization["token"];
 
 //                 jwt.verify(token, "access", (err, user) => {
 //                     if(!err) {
@@ -96,13 +96,14 @@ regd_users.post("/login", (req, res) => {
 
     if (authenticatedUser(username, password)) {
         let token = jwt.sign({
-            data: password
-        }, 'access', { expiresIn: '1h' });
+            username: username,
+            password: password
+        }, jwtSecret, { expiresIn: '1h' });
         console.log(req);
         req.session.authorization = {
-            token, username, password
+            token
         };
-        console.log(req.sessions);
+
         return res.status(200).send("User successfully logged in");
     } else {
         return res.status(208).json({ message: "Invalid Login. Check username and password" });
@@ -112,20 +113,21 @@ regd_users.post("/login", (req, res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
+  let token = req.session.authorization["token"] ?? res.status(401).json({ message: "No token provided" });
   const author = req.params.isbn;
   const decoded = jwt.verify(token, jwtSecret);
-  const username = decoded.username;
+//   const username = decoded.username;
 
-  console.log(req);
-  console.log(author);
-  console.log(decoded);
-  console.log(username)
-
-  if (books[isbn]) {
-      if (!books[isbn].reviews) {
-          books[isbn].reviews = {};
+  
+  let book = Object.values(books).find(a => a.author === author)
+  if (book) {
+      if (!book.reviews) {
+          book.reviews = {};
       }
-      books[isbn].reviews[username] = review;
+      book.reviews = {
+                    "review": req.query.review,
+                    "username": req.session.username,
+                    }
     
     res.status(200).json({ message: "Review added/updated successfully" });
 } else {
@@ -133,24 +135,25 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 }
 
 
-  const review = "";
-  if(review) {
-    Object.values(books).find(a => a.author === author).reviews = review;
-  }
-  else {
-    res.send("Reveiw is an empty string.");
-  }
-  return res.status(300).json({message: "Review added!"});
+//   const review = "";
+//   if(review) {
+//     Object.values(books).find(a => a.author === author).reviews = review;
+//   }
+//   else {
+//     res.send("Reveiw is an empty string.");
+//   }
+//   return res.status(300).json({message: "Review added!"});
 //   return res.status(300).json({message: "Yet to be implemented"});
 });
 
 // Delete a book review
 regd_users.delete("/auth/review/:isbn", (req, res) => {
-    const author = req.params.author;
+    let token = req.session.authorization["token"] ?? res.status(401).json({ message: "No token provided" });
+    const author = req.params.isbn;
     const decoded = jwt.verify(token, jwtSecret);
     const username = decoded.username;
 
-    books = Object.values(books).filter(a => a.title !== isbn);
+    books = Object.values(books).filter(a => a.author !== author);
     delete books[isbn].reviews[username];
     return res.status(300).json({message: "Review deleted!"});
 });

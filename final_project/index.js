@@ -25,16 +25,9 @@ app.use("/customer/auth/*", function auth(req,res,next){
     console.log(req);
     if(req.session.authorization) {
         let token = req.session.authorization["token"] ?? res.status(401).json({ message: "No token provided" });
-        console.log(token);
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader) {
-            return res.status(401).json({ message: "No token provided" });
-        }
-
-        const tokenHeader = authHeader.split(' ')[1];
-
-        jwt.verify(token, "access", (err, user) => {
+      
+   
+        jwt.verify(token, jwtSecret, (err, user) => {
             if(!err) {
                 req.user = user;
                 next()
