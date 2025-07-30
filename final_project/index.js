@@ -10,22 +10,22 @@ const app = express();
 app.use(express.json());
 
 // Middleware to set up session management
-app.use("/customer", session({
+app.use("/", session({
     secret: jwtSecret,      
     resave: false,             // Whether to save the session data if there were no modifications
     saveUninitialized: true,   // Whether to save new but not modified sessions
-    cookie: { secure: true },
-    
+    cookie: { secure: false },
   }));
 
 // app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
 app.use("/customer/auth/*", function auth(req,res,next){
 //Write the authenication mechanism here
-    console.log(req);
+  console.log(req.session);
     if(req.session.authorization) {
         let token = req.session.authorization["token"] ?? res.status(401).json({ message: "No token provided" });
-      
+        
+       
    
         jwt.verify(token, jwtSecret, (err, user) => {
             if(!err) {

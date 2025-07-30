@@ -99,11 +99,11 @@ regd_users.post("/login", (req, res) => {
             username: username,
             password: password
         }, jwtSecret, { expiresIn: '1h' });
-        console.log(req);
+
         req.session.authorization = {
             token
         };
-
+        
         return res.status(200).send("User successfully logged in");
     } else {
         return res.status(208).json({ message: "Invalid Login. Check username and password" });
@@ -153,10 +153,20 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
     const decoded = jwt.verify(token, jwtSecret);
     const username = decoded.username;
 
+ 
+
+
     books = Object.values(books).filter(a => a.author !== author);
-    delete books[isbn].reviews[username];
+    console.log(books)
+    //delete books[author].reviews[username];
     return res.status(300).json({message: "Review deleted!"});
 });
+
+regd_users.get('/',function (req, res) {
+  
+      res.send(JSON.stringify(books,null,4))
+    return res.status(300).json({message: "All books printed!"});
+  });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
