@@ -194,10 +194,10 @@ public_users.get('/review/:isbn', function (req, res) {
     // Add the code for getting the book details based on ISBN (done in Task 2) using Promise callbacks or async-await with Axios.
     
     function getISBN(isbn) {
-        let book_ = books[isbn];
+        let book = books[isbn];
         return new Promise((resolve, reject) => {
-            if (book_) {
-                resolve(book_);
+            if (book) {
+                resolve(book);
             } else {
                 reject("Unable to find book!");
             }
@@ -208,7 +208,7 @@ public_users.get('/review/:isbn', function (req, res) {
     public_users.get('/isbn/:isbn', function (req, res) {
         const isbn = req.params.isbn;
         getISBN(isbn).then(
-            b => res.send(JSON.stringify(b, null, 4)),
+            book => res.send(JSON.stringify(book, null, 4)),
             (error) => res.send(error)
         )
     });
